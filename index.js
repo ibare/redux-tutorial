@@ -5,20 +5,11 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reducer from './app/reducer';
 import App from './app';
-import reduxThunk from 'redux-thunk';
-import createlogger from 'redux-logger';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
 import DevTools from './components/devtools';
 
-const store = createStore(
-  reducer,
-  compose(
-    applyMiddleware(
-      reduxThunk,
-      createlogger()
-    ),
-    DevTools.instrument()
-  )
-);
+const store = createStore(reducer, compose(applyMiddleware(thunk, logger()), DevTools.instrument()));
 
 // let unsubscripbe = store.subscribe(() => console.log('change ==>', store.getState()));
 

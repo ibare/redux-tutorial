@@ -10,7 +10,21 @@ function actionCreator(actionType, ...state) {
 }
 
 function actionAddPerson(name) {
-  return actionCreator('ADD_PERSON', { name });
+  return (dispatch) => {
+    dispatch(actionRequest());
+    setTimeout(() => {
+      dispatch(actionRequestDone());
+      dispatch(actionCreator('ADD_PERSON', { name }));
+    }, 1000)
+  }
+}
+
+function actionRequest() {
+  return actionCreator('REQUEST');
+}
+
+function actionRequestDone() {
+  return actionCreator('REQUEST_DONE');
 }
 
 function actionDeletePerson(id) {
@@ -22,7 +36,7 @@ function Person(props) {
 }
 
 function Persons(props) {
-  return <ul>{props.persons.map((person) => <Person id={person.id} name={person.name} />)}</ul>;
+  return <ul>{props.persons.map((person) => <Person key={person.id} name={person.name} />)}</ul>;
 }
 
 class App extends Component {
@@ -31,12 +45,13 @@ class App extends Component {
   }
 
   render() {
-    let { actionAddPerson, persons } = this.props, count = persons.length;
+    let { actionAddPerson, persons, request } = this.props, count = persons.length;
 
     return <div>
       <h1>사람이 { count }명</h1>
-        <input type='text' ref='txtName' />
-        <button onClick={ () => { actionAddPerson(this.refs.txtName.value) } }>Add</button>
+      <input type='text' ref='txtName' />
+      <button onClick={ () => { actionAddPerson(this.refs.txtName.value) } }>Add</button>
+        { request && <p>추가중...</p> }
         <Persons persons={persons} />
     </div>;
   }
@@ -53,4 +68,7 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-export default connect(mapStateToProps, { actionAddPerson })(App);
+export default connect(state => ({ ...state, update: Date.now() }), {
+  actionAddPerson,
+  actionRequest,
+  actionRequest })(App);
